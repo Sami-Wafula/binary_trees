@@ -1,87 +1,47 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_is_perfect - check if a binary tree is perfect
- * @tree: pointer to root node of tree to check
- * Return: 1 if binary tree is perfect, else return 0
+ * tree_stats - Computes some statistics about a binary tree.
+ * @tree: The binary tree.
+ * @n: The accumulated height of the current path in the tree.
+ * @leaves: A pointer to the tree's leaf count value.
+ * @height: A pointer to the tree's maximum height value.
+ */
+void tree_stats(const binary_tree_t *tree, size_t n,
+	size_t *leaves, size_t *height)
+{
+	if (tree != NULL)
+	{
+		if ((tree->left == NULL) && (tree->right == NULL))
+		{
+			if (leaves != NULL)
+			{
+				(*leaves)++;
+			}
+			if ((height != NULL) && (n > *height))
+			{
+				*height = n;
+			}
+		}
+		else
+		{
+			tree_stats(tree->left, n + 1, leaves, height);
+			tree_stats(tree->right, n + 1, leaves, height);
+		}
+	}
+}
+
+/**
+ * binary_tree_is_perfect - Checks if a binary tree is perfect.
+ * @tree: The binary tree.
+ *
+ * Return: 1 if the tree is perfect, otherwise 0.
  */
 int binary_tree_is_perfect(const binary_tree_t *tree)
 {
-	int left, right, size, pow;
+	size_t leaves_count = 0;
+	size_t tree_height = 0;
 
-	if (tree == NULL)
-		return (0);
-
-	left = custom_binary_tree_height(tree->left);
-	right = custom_binary_tree_height(tree->right);
-	size = binary_tree_size(tree);
-
-	if (size == 1)
-		return (1);
-	if (left >= 0 && right >= 0 && left == right)
-	{
-		pow = get_power(left + 1);
-
-		if (pow - 1 == size)
-			return (1);
-	}
-
-	return (0);
-}
-
-/**
- * custom_binary_tree_height - Measure height of a binary tree from given node
- * @tree: pointer to node of tree to measure
- * Return: height of tree or -1 if NULL
- */
-int custom_binary_tree_height(const binary_tree_t *tree)
-{
-	int left, right;
-
-	if (tree == NULL)
-		return (-1);
-
-	if (tree->left == NULL && tree->right == NULL)
-		return (0);
-
-	left = custom_binary_tree_height(tree->left) + 1;
-	right = custom_binary_tree_height(tree->right) + 1;
-
-	if (left > right)
-		return (left);
-	else
-		return (right);
-}
-
-/**
- * binary_tree_size - measure the size of a binary tree from a given node
- * @tree: root node of tree to measure from
- * Return: size of tree from a given node
- */
-size_t binary_tree_size(const binary_tree_t *tree)
-{
-	size_t count;
-
-	if (tree == NULL)
-		return (0);
-
-	count = binary_tree_size(tree->left) + 1;
-	count += binary_tree_size(tree->right);
-
-	return (count);
-}
-
-/**
- * get_power - get the power of 2 for a given number
- * @exp: exponent
- * Return: power of 2 for given exponent
- */
-int get_power(int exp)
-{
-	int pow, i;
-
-	for (i = 0, pow = 1; i <= exp; i++)
-		pow *= 2;
-
-	return (pow);
+	tree_stats(tree, 0, &leaves_count, &tree_height);
+	return ((int)leaves_count == (1 << tree_height) ? 1 : 0);
 }
